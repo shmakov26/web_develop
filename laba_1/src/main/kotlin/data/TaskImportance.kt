@@ -6,5 +6,6 @@ enum class TaskImportance {
     ORDINARY,
     HIGH,
     VERY_HIGH,
-    CRITICAL
+    CRITICAL,
+    DEFAULT
 }

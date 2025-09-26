@@ -18,19 +18,29 @@ class CsvReader {
             .map { line -> parseTaskLine(line) }
     }
 
+    private fun replaceTaskImportance(importance: String) = when (importance) {
+        "очень низкий" -> TaskImportance.VERY_LOWER
+        "низкий" -> TaskImportance.LOWER
+        "обычный" -> TaskImportance.ORDINARY
+        "высокий" -> TaskImportance.HIGH
+        "очень высокий" -> TaskImportance.VERY_HIGH
+        "критически" -> TaskImportance.CRITICAL
+        else -> TaskImportance.DEFAULT
+    }
+
     private fun parseTaskLine(line: String): Task {
         val parts = line.split(",").map { it.trim() }
 
         return Task(
-            Id = UUID.fromString(parts[0]),
-            Title = parts[1],
-            RegistrationDateTime = LocalDateTime.parse(parts[2]),
-            StartDateTime = LocalDateTime.parse(parts[3]),
-            EndDateTime = parts[4].takeIf { it.isNotBlank() }?.let { LocalDateTime.parse(it) },
-            Importance = TaskImportance.valueOf(parts[5].uppercase().replace(" ", "_")),
-            Urgency = parts[6].toBoolean(),
-            Percentage = parts[7].toInt(),
-            Description = parts[8]
+            id = UUID.fromString(parts[0]),
+            title = parts[1],
+            registrationDateTime = LocalDateTime.parse(parts[2]),
+            startDateTime = LocalDateTime.parse(parts[3]),
+            endDateTime = parts[4].takeIf { it.isNotBlank() }?.let { LocalDateTime.parse(it) },
+            importance = replaceTaskImportance(parts[5]),
+            urgency = parts[6].toBoolean(),
+            percentage = parts[7].toInt(),
+            description = parts[8]
         )
     }
 }

@@ -4,16 +4,16 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 data class Task(
-    val Id: UUID,
-    val Title: String,
-    val RegistrationDateTime: LocalDateTime,
-    val StartDateTime: LocalDateTime,
-    val EndDateTime: LocalDateTime?,
-    val Importance: TaskImportance,
-    val Urgency: Boolean,
-    val Percentage: Int,
-    val Description: String
+    val id: UUID,
+    val title: String,
+    val registrationDateTime: LocalDateTime,
+    val startDateTime: LocalDateTime,
+    val endDateTime: LocalDateTime?,
+    val importance: TaskImportance,
+    val urgency: Boolean,
+    val percentage: Int,
+    val description: String
 ) {
-    val IsClosed: Boolean
-        get() = Percentage == 100
+    val isClosed: Boolean
+        get() = percentage == 100
 }
