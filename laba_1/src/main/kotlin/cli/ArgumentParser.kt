@@ -14,7 +14,7 @@ class ArgumentParser {
             return Command.InvalidCommand
         }
 
-        val filePath = args[1].removePrefix("--tasks-file=").removeSurrounding("\"")
+        val filePath = args[1].removePrefix("--tasks-file=")
         if (filePath.isBlank()) {
             return Command.InvalidCommand
         }

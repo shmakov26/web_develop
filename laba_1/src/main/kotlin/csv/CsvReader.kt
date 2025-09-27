@@ -10,15 +10,15 @@ class CsvReader {
     fun readTasksFromFile(filePath: String): List<Task> {
         val file = File(filePath)
         if (!file.exists()) {
-            throw IllegalArgumentException("File not found: $filePath")
+            throw IllegalArgumentException("Файл не найден: $filePath")
         }
 
         return file.readLines()
-            .drop(1) // Skip header
+            .drop(1)
             .map { line -> parseTaskLine(line) }
     }
 
-    private fun replaceTaskImportance(importance: String) = when (importance) {
+    private fun replaceOnTaskImportance(importance: String) = when (importance) {
         "очень низкий" -> TaskImportance.VERY_LOWER
         "низкий" -> TaskImportance.LOWER
         "обычный" -> TaskImportance.ORDINARY
@@ -37,7 +37,7 @@ class CsvReader {
             registrationDateTime = LocalDateTime.parse(parts[2]),
             startDateTime = LocalDateTime.parse(parts[3]),
             endDateTime = parts[4].takeIf { it.isNotBlank() }?.let { LocalDateTime.parse(it) },
-            importance = replaceTaskImportance(parts[5]),
+            importance = replaceOnTaskImportance(parts[5]),
             urgency = parts[6].toBoolean(),
             percentage = parts[7].toInt(),
             description = parts[8]
