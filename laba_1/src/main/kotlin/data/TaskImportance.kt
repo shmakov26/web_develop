@@ -1,11 +1,11 @@
 package org.example.data
 
-enum class TaskImportance {
-    VERY_LOWER,
-    LOWER,
-    ORDINARY,
-    HIGH,
-    VERY_HIGH,
-    CRITICAL,
-    DEFAULT
+enum class TaskImportance(val strFormat: String) {
+    VERY_LOWER("очень низкий"),
+    LOWER("низкий"),
+    ORDINARY("обычный"),
+    HIGH("высокий"),
+    VERY_HIGH("очень высокий"),
+    CRITICAL("критический"),
+    DEFAULT("")
 }
