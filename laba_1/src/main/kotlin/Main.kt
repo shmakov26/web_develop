@@ -57,10 +57,10 @@ private fun handleShowCommand(command: Command.ShowCommand) {
         println(jsonOutput)
 
     } catch (e: IllegalArgumentException) {
-        System.err.println("Error: ${e.message}")
+        System.err.println("Ошибка: ${e.message}")
         System.exit(1)
     } catch (e: Exception) {
-        System.err.println("Error: Failed to process task")
+        System.err.println("Ошибка: Не удалось обработать задачу")
         System.exit(1)
     }
 }
