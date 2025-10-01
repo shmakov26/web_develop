@@ -24,7 +24,7 @@ class CsvReader {
         "обычный" -> TaskImportance.ORDINARY
         "высокий" -> TaskImportance.HIGH
         "очень высокий" -> TaskImportance.VERY_HIGH
-        "критически" -> TaskImportance.CRITICAL
+        "критический" -> TaskImportance.CRITICAL
         else -> TaskImportance.DEFAULT
     }
 

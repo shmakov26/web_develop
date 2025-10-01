@@ -37,6 +37,22 @@ data class TaskShowResponse(
     val task: TaskShowItem
 )
 
+@Serializable
+data class EisenhowerTaskItem(
+    val Id: String,
+    val Title: String,
+    val Importance: String,
+    val Urgency: Boolean,
+    val Percentage: Int
+)
+
+@Serializable
+data class EisenhowerResponse(
+    val important: Boolean? = null,
+    val urgent: Boolean? = null,
+    val tasks: List<EisenhowerTaskItem>
+)
+
 object JsonConverter {
     private val json = Json {
         prettyPrint = true
@@ -61,5 +77,13 @@ object JsonConverter {
         )
 
         return json.encodeToString(TaskShowResponse(taskId, taskResponse))
+    }
+
+    fun convertToEisenhowerJson(
+        important: Boolean?,
+        urgent: Boolean?,
+        tasks: List<EisenhowerTaskItem>
+    ): String {
+        return json.encodeToString(EisenhowerResponse(important, urgent, tasks))
     }
 }
