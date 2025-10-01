@@ -5,6 +5,8 @@ import org.example.json.TaskListItem
 import java.util.UUID
 import org.example.json.EisenhowerTaskItem
 import org.example.data.TaskImportance
+import org.example.json.TimeTaskItem
+import java.time.LocalDateTime
 
 class TaskService {
     fun processTasksForListCommand(tasks: List<Task>): List<TaskListItem> {
@@ -62,5 +64,30 @@ class TaskService {
 
             TaskImportance.DEFAULT -> null
         }
+    }
+
+    fun filterTasksByTime(tasks: List<Task>, time: LocalDateTime): List<TimeTaskItem> {
+        return tasks
+            .filter { task ->
+                !task.startDateTime.isAfter(time) && task.percentage < 100
+            }
+            .sortedWith(compareByDescending<Task> { task ->
+                task.importance.intFormat
+            }.thenByDescending { task ->
+                task.urgency
+            }.thenBy { task ->
+                task.registrationDateTime
+            }.thenBy { task ->
+                task.id
+            })
+            .map { task ->
+                TimeTaskItem(
+                    Id = task.id.toString(),
+                    Title = task.title,
+                    Importance = task.importance.strFormat,
+                    Urgency = task.urgency,
+                    Percentage = task.percentage
+                )
+            }
     }
 }

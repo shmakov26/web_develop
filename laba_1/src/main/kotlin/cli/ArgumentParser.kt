@@ -1,6 +1,7 @@
 package org.example.cli
 
 import java.lang.IllegalArgumentException
+import java.time.LocalDateTime
 import kotlin.coroutines.Continuation
 import kotlin.text.removePrefix
 
@@ -14,6 +15,7 @@ class ArgumentParser {
             "list" -> parseListCommand(args)
             "show" -> parseShowCommand(args)
             "list-eisenhower" -> parseListEisenhower(args)
+            "list-time" -> parseListTime(args)
             else -> Command.InvalidCommand
         }
     }
@@ -86,6 +88,40 @@ class ArgumentParser {
             "true" -> true
             "false" -> false
             else -> throw IllegalArgumentException("Неверное значение boolean: $value")
+        }
+    }
+
+    private fun parseListTime(args: Array<String>): Command {
+        if (args.size != 3) return Command.InvalidCommand
+
+        var tasksFilePath = ""
+        var time: LocalDateTime? = null
+
+        for (i in 1 until args.size) {
+            when {
+                args[i].startsWith("--tasks-file=") -> {
+                    tasksFilePath = args[i].removePrefix("--tasks-file=")
+                }
+                args[i].startsWith("--time=") -> {
+                    time = parseTimeArg(args[i])
+                }
+                else -> return Command.InvalidCommand
+            }
+        }
+
+        if (tasksFilePath.isBlank() || time == null) {
+            return Command.InvalidCommand
+        }
+
+        return Command.ListTimeCommand(tasksFilePath, time)
+    }
+
+    private fun parseTimeArg(arg: String): LocalDateTime {
+        val timeString = arg.removePrefix("--time=")
+        return try {
+            LocalDateTime.parse(timeString)
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Неверный формат времени: $timeString")
         }
     }
 }

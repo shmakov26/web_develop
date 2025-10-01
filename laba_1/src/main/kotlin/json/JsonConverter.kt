@@ -53,6 +53,21 @@ data class EisenhowerResponse(
     val tasks: List<EisenhowerTaskItem>
 )
 
+@Serializable
+data class TimeTaskItem(
+    val Id: String,
+    val Title: String,
+    val Importance: String,
+    val Urgency: Boolean,
+    val Percentage: Int
+)
+
+@Serializable
+data class TimeResponse(
+    val time: String,
+    val tasks: List<TimeTaskItem>
+)
+
 object JsonConverter {
     private val json = Json {
         prettyPrint = true
@@ -85,5 +100,9 @@ object JsonConverter {
         tasks: List<EisenhowerTaskItem>
     ): String {
         return json.encodeToString(EisenhowerResponse(important, urgent, tasks))
+    }
+
+    fun convertToTimeJson(time: String, tasks: List<TimeTaskItem>): String {
+        return json.encodeToString(TimeResponse(time, tasks))
     }
 }

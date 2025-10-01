@@ -12,6 +12,7 @@ fun main(args: Array<String>) {
             is Command.ListCommand -> executeListCommand(command)
             is Command.ShowCommand -> executeShowCommand(command)
             is Command.ListEisenhowerCommand -> executeListEisenhowerCommand(command)
+            is Command.ListTimeCommand -> executeListTimeCommand(command)
             is Command.InvalidCommand -> {
                 System.err.println("Ошибка: Неверно переданы аргументы.")
                 System.exit(1)
@@ -45,7 +46,6 @@ private fun executeListCommand(command: Command.ListCommand) {
 
 private fun executeShowCommand(command: Command.ShowCommand) {
     try {
-        // Читаем задачи из CSV
         val csvReader = CsvReader()
         val tasks = csvReader.readTasksFromFile(command.tasksFilePath)
 
@@ -87,5 +87,28 @@ private fun executeListEisenhowerCommand(command: Command.ListEisenhowerCommand)
         System.exit(1)
     } catch (e: Exception) {
         System.err.println("Ошибка: Не удалось обработать задачу")
+    }
+}
+
+private fun executeListTimeCommand(command: Command.ListTimeCommand) {
+    try {
+        val csvReader = CsvReader()
+        val tasks = csvReader.readTasksFromFile(command.tasksFilePath)
+
+        val taskService = TaskService()
+        val timeTasks = taskService.filterTasksByTime(tasks, command.time)
+
+        val jsonOutput = JsonConverter.convertToTimeJson(
+            command.time.toString(),
+            timeTasks
+        )
+        println(jsonOutput)
+
+    } catch (e: IllegalArgumentException) {
+        System.err.println("Ошибка: ${e.message}")
+        System.exit(1)
+    } catch (e: Exception) {
+        System.err.println("Ошибка: не удалось обработать задачи на основе времени")
+        System.exit(1)
     }
 }
