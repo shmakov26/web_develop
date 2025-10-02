@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     kotlin("jvm") version "2.2.10"
     kotlin("plugin.serialization") version "1.9.10"
@@ -27,4 +29,8 @@ kotlin {
 
 ktlint {
     version.set("1.7.1")
+}
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.compilerOptions {
+    freeCompilerArgs.set(listOf("-Xannotation-default-target=param-property"))
 }

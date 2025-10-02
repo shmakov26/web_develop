@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.util.DefaultIndenter
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
 import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.databind.json.JsonMapper
 import java.util.*
 import com.github.doyaaaaaken.kotlincsv.client.CsvReader
 import java.io.File
@@ -14,12 +14,11 @@ import java.time.format.*
 import kotlin.system.exitProcess
 
 fun main(argv: Array<String>) {
-    val showTask = ShowTask()
     val taskList = TaskList()
+    val showTask = ShowTask()
     val listEisenHower = ListEisenHower()
     val listTime = ListTime()
     val statistic = Statistic()
-//    val statisticByHowReady = StatisticByHowReady()
 
     val commander: JCommander = JCommander
         .newBuilder()
@@ -28,7 +27,6 @@ fun main(argv: Array<String>) {
         .addCommand("list-importance", listEisenHower)
         .addCommand("list-time", listTime)
         .addCommand("statistic", statistic)
-//        .addCommand("statistic-by-how-ready", statisticByHowReady)
         .build()
 
     val dataForView: Any
@@ -42,26 +40,21 @@ fun main(argv: Array<String>) {
             listEisenHower.urlFile != "" -> csvReader.readAll(File(listEisenHower.urlFile))
             listTime.urlFile != "" -> csvReader.readAll(File(listTime.urlFile))
             statistic.urlFile != "" -> csvReader.readAll(File(statistic.urlFile))
-//            statisticByHowReady.statisticByHowReadyFile != "" -> {
-//                if (argv.contains("--tasks-file")){
-//                    throw IllegalArgumentException("--tasks-file не должен указываться!")
-//                }
-//                csvReader.readAll(File(statisticByHowReady.statisticByHowReadyFile))
-//            }
             else -> {
                 throw IllegalArgumentException("Пропущен аргумент")
             }
         }
 
         val dataTask = mutableListOf<TaskModel>()
+        var format = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.S")
         for (item in data.drop(1)) {
             dataTask.add(
                 TaskModel(
                     UUID.fromString(item[0]),
                     title = item[1],
-                    registrationDateTime = item[2],
-                    startDateTime = item[3],
-                    endDateTime = item[4],
+                    registrationDateTime = LocalDateTime.parse(item[2], format),
+                    startDateTime = LocalDateTime.parse(item[3], format),
+                    endDateTime = item[4].takeIf { it.isNotBlank() }?.let { LocalDateTime.parse(it, format) },
                     importance = parseImportance(item[5]),
                     urgency = item[6].toBoolean(),
                     percentage = item[7].toInt(),
@@ -86,7 +79,7 @@ fun main(argv: Array<String>) {
                 if(listTime.time == null){
                     throw NullPointerException("Дата не может быть нулевой")
                 }
-                workFlowWithTasks.getSotrtedListByManyParametresTask(dataTask, LocalDateTime.parse(listTime.time, format))
+                workFlowWithTasks.getSortedListByManyParametresTask(dataTask, LocalDateTime.parse(listTime.time, format))
 
             }
 
@@ -96,11 +89,6 @@ fun main(argv: Array<String>) {
                 workFlowWithTasks.getStatisticDate(parseValuesStatistic(valueStatic))
                 return
             }
-
-//            "statistic-by-how-ready" -> {
-//                workFlowWithTasks.getStatisticByHowReady()
-//                return
-//            }
 
             else -> {
                 println("Не передана ни одна команда!Документация:")
@@ -116,11 +104,14 @@ fun main(argv: Array<String>) {
     }
 
     //Вывод для высокоуровневого интерфейса
-    val mapper = jacksonObjectMapper()
+    val mapper = JsonMapper.builder()
+        .enable(SerializationFeature.INDENT_OUTPUT)
+        .defaultPropertyInclusion(JsonInclude.Value.construct(
+            JsonInclude.Include.NON_NULL,
+            JsonInclude.Include.ALWAYS
+        ))
+        .build()
     val printer = DefaultPrettyPrinter()
     printer.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE)
-    mapper.enable(SerializationFeature.INDENT_OUTPUT)
-        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-        .writer(printer)
-        .writeValue(System.out, dataForView)
+    mapper.writeValue(System.out, dataForView)
 }

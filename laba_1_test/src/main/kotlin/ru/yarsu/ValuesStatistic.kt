@@ -1,9 +1,9 @@
 package ru.yarsu
 
 enum class ValuesStatistic(val type: String){
-    REGISTRATION(type = "registration"),
-    START(type = "start"),
-    END(type = "end")
+    REGISTRATION("registration"),
+    START("start"),
+    END("end")
 }
 
 fun parseValuesStatistic(type: String) : ValuesStatistic {

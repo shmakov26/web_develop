@@ -1,5 +1,5 @@
 package ru.yarsu
-import com.beust.jcommander.*;
+import com.beust.jcommander.*
 
 @Parameters(separators = "=")
 open class Args {
@@ -54,14 +54,4 @@ class Statistic : Args() {
     )
     var valueStatistic: String? = null
 }
-//
-//@Parameters(separators = "=", commandDescription = "Статистика в формате JSON содержащая пункты.")
-//class StatisticByHowReady{
-//    @Parameter(names = ["--tasks-for-statistic-file"],
-//        arity = 1,
-//        description = "Путь к файлу",
-//        required = true
-//    )
-//    var statisticByHowReadyFile: String = ""
-//}
 

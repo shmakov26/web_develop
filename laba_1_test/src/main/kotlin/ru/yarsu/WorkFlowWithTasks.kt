@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.util.DefaultIndenter
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.mutableListOf as mutableListOf
 
@@ -14,7 +13,7 @@ class WorkFlowWithTasks(
 ) {
     fun getSortedTaskList() : TaskCommandList
     {
-        val sortedFilteredTasks = tasksData.sortedBy {LocalDateTime.parse(it.registrationDateTime)}
+        val sortedFilteredTasks = tasksData.sortedBy {it.registrationDateTime}
 
         val totalSortedFilteredTaskList = mutableListOf<TasksForListCommand>()
 
@@ -30,7 +29,7 @@ class WorkFlowWithTasks(
             )
         })
 
-        val viewTotalSortedFilteredTaskList: TaskCommandList = TaskCommandList(
+        val viewTotalSortedFilteredTaskList = TaskCommandList(
             totalSortedFilteredTaskList
         )
 
@@ -42,17 +41,27 @@ class WorkFlowWithTasks(
         if (taskById == null){
             throw NullPointerException("Задание с таким id не найдено!")
         }
+
+        val showByTaskId = TaskModelShow(
+            id = taskById.id,
+            title = taskById.title,
+            registrationDateTime = taskById.registrationDateTime,
+            startDateTime = taskById.startDateTime,
+            endDateTime = taskById.endDateTime,
+            importance = taskById.importance.importance,
+            urgency = taskById.urgency,
+            percentage = taskById.percentage,
+            description = taskById.description
+        )
+
         return ParticularTask(
             id = id,
-            task = taskById
+            task = showByTaskId
         )
     }
     fun getListEisenHower(important: Boolean?, urgent: Boolean?) : ListImportance {
         val filteredTasks = tasksData.filter { task ->
-            (important == null ||
-                    (important && task.importance in listOf(Importance.HIGH, Importance.VERY_HIGH, Importance.CRITICAL)) ||
-                    (important == false && task.importance in listOf(Importance.VERY_LOW, Importance.LOW, Importance.DEFAULT))) &&
-                    (urgent == null || task.urgency == urgent)
+            (important == null || (important && task.importance in listOf(Importance.HIGH, Importance.VERY_HIGH, Importance.CRITICAL)) || (!important && task.importance in listOf(Importance.VERY_LOW, Importance.LOW, Importance.DEFAULT))) && (urgent == null || task.urgency == urgent)
         }
         val taskForListImportance = mutableListOf<TaskForListImportance>()
         filteredTasks.forEach({task ->
@@ -73,16 +82,13 @@ class WorkFlowWithTasks(
             tasks = taskForListImportance
         )
     }
-    fun getSotrtedListByManyParametresTask(tasksData: List<TaskModel>, inputDateTime: LocalDateTime) : TaskForListTime {
-        var format = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.S")
+    fun getSortedListByManyParametresTask(tasksData: List<TaskModel>, inputDateTime: LocalDateTime) : TaskForListTime {
         val listSorted = tasksData.filter { task ->
-            val taskStartDateTime = LocalDateTime.parse(task.startDateTime, format)
-            val taskregistrationDateTime = LocalDateTime.parse(task.registrationDateTime, format)
-            taskStartDateTime.isBefore(inputDateTime) && taskregistrationDateTime.isBefore(inputDateTime) && task.percentage < 100
+            task.startDateTime.isBefore(inputDateTime) && task.registrationDateTime.isBefore(inputDateTime) && task.percentage < 100
         }.sortedWith(                                              //sortedWith принимает собственный Comparator
             compareByDescending<TaskModel> { it.importance.order } //убывание важности
                 .thenByDescending { it.urgency }
-                .thenBy { LocalDateTime.parse(it.registrationDateTime, format) }
+                .thenBy { it.registrationDateTime }
                 .thenBy { it.id }
         )
 
@@ -109,7 +115,6 @@ class WorkFlowWithTasks(
 
     fun getStatisticDate(typeStatistic: ValuesStatistic) : Unit {
         val dayCount: MutableMap<String, Int> = mutableMapOf()
-        val format = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.S")
 
         val dayOfWeekTranslations = mapOf(
             "MONDAY" to "Понедельник",
@@ -130,19 +135,18 @@ class WorkFlowWithTasks(
             val dateString = when (typeStatistic) {
                 ValuesStatistic.REGISTRATION -> task.registrationDateTime
                 ValuesStatistic.START -> task.startDateTime
-                ValuesStatistic.END -> task.endDateTime ?: ""
+                ValuesStatistic.END -> task.endDateTime
             }
 
-            if (dateString.isNotEmpty()) {
-                val date = LocalDateTime.parse(dateString, format)
-                val dayOfWeek = dayOfWeekTranslations[date.dayOfWeek.name] ?: date.dayOfWeek.name
+            if (dateString != null) {
+                val dayOfWeek = dayOfWeekTranslations[dateString.dayOfWeek.name] ?: dateString.dayOfWeek.name
                 dayCount[dayOfWeek] = dayCount.getOrDefault(dayOfWeek, 0) + 1
             } else if (typeStatistic == ValuesStatistic.END) {
                 dayCount["Не заполнено"] = dayCount.getOrDefault("Не заполнено", 0) + 1
             }
         }
 
-        val factory: JsonFactory = JsonFactory()
+        val factory = JsonFactory()
         val outputGenerator: JsonGenerator = factory.createGenerator(System.out)
         val printer = DefaultPrettyPrinter()
         printer.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE)
@@ -173,80 +177,4 @@ class WorkFlowWithTasks(
             close()
         }
     }
-//    fun getStatisticByHowReady() : Unit{
-//        val statisticCount: MutableMap<String, Int> = mutableMapOf()
-//        val statisticStatus = listOf(
-//            "готова", "почти готова", "в процессе", "немного начата",
-//            "не начата"
-//        )
-//        for(task in tasksData){
-//            if(task.percentage == 100){
-//                if(statisticCount.containsKey("готова") != true){
-//                    statisticCount.put("готова", 1)
-//                }else{
-//                    var value = statisticCount.getValue("готова") + 1
-//                    statisticCount.set("готова", value)
-//                }
-//            }else if(task.percentage < 100 && task.percentage >= 85){
-//                if(statisticCount.containsKey("почти готова") != true){
-//                    statisticCount.put("почти готова", 1)
-//                }else{
-//                    var value = statisticCount.getValue("почти готова") + 1
-//                    statisticCount.set("почти готова", value)
-//                }
-//
-//            }else if(task.percentage < 85 && task.percentage > 15){
-//                if(statisticCount.containsKey("в процессе") != true){
-//                    statisticCount.put("в процессе", 1)
-//                }else{
-//                    var value = statisticCount.getValue("в процессе") + 1
-//                    statisticCount.set("в процессе", value)
-//                }
-//
-//            }else if(task.percentage < 15 && task.percentage > 0){
-//                if(statisticCount.containsKey("немного начата") != true){
-//                    statisticCount.put("немного начата", 1)
-//                }else{
-//                    var value = statisticCount.getValue("немного начата") + 1
-//                    statisticCount.set("немного начата", value)
-//                }
-//
-//            }else{
-//                if(statisticCount.containsKey("не начата") != true){
-//                    statisticCount.put("не начата", 1)
-//                }else{
-//                    var value = statisticCount.getValue("не начата") + 1
-//                    statisticCount.set("не начата", value)
-//
-//                }
-//            }
-//        }
-//
-//
-//        val factory: JsonFactory = JsonFactory()
-//        val outputGenerator: JsonGenerator = factory.createGenerator(System.out)
-//        val printer = DefaultPrettyPrinter()
-//        printer.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE)
-//        outputGenerator.prettyPrinter = printer
-//
-//        with(outputGenerator) {
-//            writeStartObject()
-//
-//            writeFieldName("statisticByHowReady")
-//
-//            writeStartObject()
-//            for (statistic in statisticStatus) {
-//                statisticCount[statistic]?.let { count ->
-//                    writeFieldName(statistic)
-//                    writeNumber(count)
-//                }
-//            }
-//            writeEndObject()
-//
-//            writeEndObject()
-//            close()
-//        }
-//
-//    }
-
 }

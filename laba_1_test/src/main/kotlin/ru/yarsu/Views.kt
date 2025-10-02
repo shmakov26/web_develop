@@ -1,101 +1,131 @@
 package ru.yarsu
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.time.LocalDateTime
 import java.util.UUID
 
 //Базовый вид
 data class TaskModel(
-    @JsonProperty("ID")
+    @param:JsonProperty("ID")
     val id: UUID,
 
-    @JsonProperty("Title")
+    @param:JsonProperty("Title")
     val title: String,
 
-    @JsonProperty("RegistrationDateTime")
-    val registrationDateTime: String,
+    @param:JsonProperty("RegistrationDateTime")
+    val registrationDateTime: LocalDateTime,
 
-    @JsonProperty("StartDateTime")
-    val startDateTime: String,
+    @param:JsonProperty("StartDateTime")
+    val startDateTime: LocalDateTime,
 
-    @JsonProperty("EndDateTime")
-    val endDateTime: String?,
+    @param:JsonProperty("EndDateTime")
+    val endDateTime: LocalDateTime?,
 
-    @JsonProperty("Importance")
+    @param:JsonProperty("Importance")
     val importance: Importance,
 
-    @JsonProperty("Urgency")
+    @param:JsonProperty("Urgency")
     val urgency: Boolean,
 
-    @JsonProperty("Percentage")
+    @param:JsonProperty("Percentage")
     val percentage: Int,
 
-    @JsonProperty("Description")
+    @param:JsonProperty("Description")
     val description: String
 )
 //Другие виды
 
 // Просмотр команды list
 data class TasksForListCommand(
-    @JsonProperty("ID")
+    @param:JsonProperty("ID")
     val id: UUID,
 
-    @JsonProperty("Title")
+    @param:JsonProperty("Title")
     val title: String,
 
-    @JsonProperty("IsClosed")
+    @param:JsonProperty("IsClosed")
     val isClosed: Boolean
 
 )
 
 data class TaskCommandList(
-    @JsonProperty("tasks")
+    @param:JsonProperty("tasks")
     val tasks: List<TasksForListCommand>
 )
 
 // Посмотреть команду show
 data class ParticularTask(
-    @JsonProperty("task-id")
+    @param:JsonProperty("task-id")
     val id: UUID,
 
-    @JsonProperty("task")
-    val task: TaskModel
+    @param:JsonProperty("task")
+    val task: TaskModelShow
+)
+
+data class TaskModelShow(
+    @param:JsonProperty("ID")
+    val id: UUID,
+
+    @param:JsonProperty("Title")
+    val title: String,
+
+    @param:JsonProperty("RegistrationDateTime")
+    val registrationDateTime: LocalDateTime,
+
+    @param:JsonProperty("StartDateTime")
+    val startDateTime: LocalDateTime,
+
+    @param:JsonProperty("EndDateTime")
+    val endDateTime: LocalDateTime?,
+
+    @param:JsonProperty("Importance")
+    val importance: String,
+
+    @param:JsonProperty("Urgency")
+    val urgency: Boolean,
+
+    @param:JsonProperty("Percentage")
+    val percentage: Int,
+
+    @param:JsonProperty("Description")
+    val description: String
 )
 
 // Просмотр для List-eisenhower
 data class ListImportance(
-    @JsonProperty("important")
+    @param:JsonProperty("important")
     val important: Boolean?,
 
-    @JsonProperty("urgent")
+    @param:JsonProperty("urgent")
     val urgent: Boolean?,
 
-    @JsonProperty("tasks")
+    @param:JsonProperty("tasks")
     val tasks: List<TaskForListImportance>
 )
 
 data class TaskForListImportance(
-    @JsonProperty("Id")
+    @param:JsonProperty("Id")
     val id: UUID,
 
-    @JsonProperty("Title")
+    @param:JsonProperty("Title")
     val title: String,
 
-    @JsonProperty("Importance")
+    @param:JsonProperty("Importance")
     val importance: String,
 
-    @JsonProperty("Urgency")
+    @param:JsonProperty("Urgency")
     val urgency: Boolean,
 
-    @JsonProperty("Percentage")
+    @param:JsonProperty("Percentage")
     val percentage: Int,
 
     )
 // Просмотр для list-time
 data class TaskForListTime(
-    @JsonProperty("time")
+    @param:JsonProperty("time")
     val time: String,
 
-    @JsonProperty("tasks")
+    @param:JsonProperty("tasks")
     val tasks: List<TaskForListImportance>
 
 )
