@@ -13,6 +13,7 @@ fun main(args: Array<String>) {
             is Command.ShowCommand -> executeShowCommand(command)
             is Command.ListEisenhowerCommand -> executeListEisenhowerCommand(command)
             is Command.ListTimeCommand -> executeListTimeCommand(command)
+            is Command.StatisticCommand -> executeStatisticCommand(command)
             is Command.InvalidCommand -> {
                 System.err.println("Ошибка: Неверно переданы аргументы.")
                 System.exit(1)
@@ -86,7 +87,7 @@ private fun executeListEisenhowerCommand(command: Command.ListEisenhowerCommand)
         System.err.println("Ошибка: ${e.message}")
         System.exit(1)
     } catch (e: Exception) {
-        System.err.println("Ошибка: Не удалось обработать задачу")
+        System.err.println("Ошибка: Не удалось обработать задачи Эйзенхауэра")
     }
 }
 
@@ -109,6 +110,26 @@ private fun executeListTimeCommand(command: Command.ListTimeCommand) {
         System.exit(1)
     } catch (e: Exception) {
         System.err.println("Ошибка: не удалось обработать задачи на основе времени")
+        System.exit(1)
+    }
+}
+
+private fun executeStatisticCommand(command: Command.StatisticCommand) {
+    try {
+        val csvReader = CsvReader()
+        val tasks = csvReader.readTasksFromFile(command.tasksFilePath)
+
+        val taskService = TaskService()
+        val statistics = taskService.calculateStatisticsByDateType(tasks, command.dataType)
+
+        val jsonOutput = JsonConverter.convertToStatisticJson(command.dataType, statistics)
+        println(jsonOutput)
+
+    } catch (e: IllegalArgumentException) {
+        System.err.println("Ошибка: ${e.message}")
+        System.exit(1)
+    } catch (e: Exception) {
+        System.err.println("Ошибка: не удалось вычислять статистику")
         System.exit(1)
     }
 }

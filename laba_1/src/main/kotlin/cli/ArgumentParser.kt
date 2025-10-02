@@ -1,8 +1,8 @@
 package org.example.cli
 
+import org.example.data.StatisticDateType
 import java.lang.IllegalArgumentException
 import java.time.LocalDateTime
-import kotlin.coroutines.Continuation
 import kotlin.text.removePrefix
 
 class ArgumentParser {
@@ -16,6 +16,7 @@ class ArgumentParser {
             "show" -> parseShowCommand(args)
             "list-eisenhower" -> parseListEisenhower(args)
             "list-time" -> parseListTime(args)
+            "statistic" -> parseStatisticCommand(args)
             else -> Command.InvalidCommand
         }
     }
@@ -122,6 +123,41 @@ class ArgumentParser {
             LocalDateTime.parse(timeString)
         } catch (e: Exception) {
             throw IllegalArgumentException("Неверный формат времени: $timeString")
+        }
+    }
+
+    private fun parseStatisticCommand(args: Array<String>): Command {
+        if (args.size != 3) return Command.InvalidCommand
+
+        var tasksFilePath = ""
+        var dataType: StatisticDateType? = null
+
+        for (i in 1 until args.size) {
+            when {
+                args[i].startsWith("--tasks-file=") -> {
+                    tasksFilePath = args[i].removePrefix("--tasks-file=")
+                }
+                args[i].startsWith("--by-date=") -> {
+                    dataType = parseDateTypeArg(args[i])
+                }
+                else -> return Command.InvalidCommand
+            }
+        }
+
+        if (tasksFilePath.isBlank() || dataType == null) {
+            return Command.InvalidCommand
+        }
+
+        return Command.StatisticCommand(tasksFilePath, dataType)
+    }
+
+    private fun parseDateTypeArg(arg: String): StatisticDateType {
+        val dateTypeString = arg.removePrefix("--by-date=")
+        return when (dateTypeString.lowercase()) {
+            "registration" -> StatisticDateType.REGISTRATION
+            "start" -> StatisticDateType.START
+            "end" -> StatisticDateType.END
+            else -> throw IllegalArgumentException("Неверный тип даты: $dateTypeString")
         }
     }
 }

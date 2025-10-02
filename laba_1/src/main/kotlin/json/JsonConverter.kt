@@ -4,6 +4,7 @@ import org.example.data.Task
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.example.data.StatisticDateType
 
 @Serializable
 data class TaskListItem(
@@ -68,6 +69,21 @@ data class TimeResponse(
     val tasks: List<TimeTaskItem>
 )
 
+@Serializable
+data class DayStatistic(
+    val day: String,
+    val count: Int
+) {
+    fun toMapEntry(): Map<String, Int> = mapOf(day to count)
+}
+
+@Serializable
+data class StatisticResponse(
+    val statisticByRegistrationDateTime: List<Map<String, Int>>? = null,
+    val statisticByStartDateTime: List<Map<String, Int>>? = null,
+    val statisticByEndDateTime: List<Map<String, Int>>? = null
+)
+
 object JsonConverter {
     private val json = Json {
         prettyPrint = true
@@ -104,5 +120,24 @@ object JsonConverter {
 
     fun convertToTimeJson(time: String, tasks: List<TimeTaskItem>): String {
         return json.encodeToString(TimeResponse(time, tasks))
+    }
+
+    fun convertToStatisticJson(
+        dateType: StatisticDateType,
+        statistics: List<DayStatistic>
+    ): String {
+        val response = when (dateType) {
+            StatisticDateType.REGISTRATION -> StatisticResponse(
+                statisticByRegistrationDateTime = statistics.map { it.toMapEntry() }
+            )
+            StatisticDateType.START -> StatisticResponse(
+                statisticByStartDateTime = statistics.map { it.toMapEntry() }
+            )
+            StatisticDateType.END -> StatisticResponse(
+                statisticByEndDateTime = statistics.map { it.toMapEntry() }
+            )
+        }
+
+        return json.encodeToString(response)
     }
 }

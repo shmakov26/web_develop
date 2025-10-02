@@ -1,11 +1,12 @@
 package org.example.service
 
-import org.example.data.Task
+import org.example.data.*
 import org.example.json.TaskListItem
 import java.util.UUID
 import org.example.json.EisenhowerTaskItem
-import org.example.data.TaskImportance
+import org.example.json.DayStatistic
 import org.example.json.TimeTaskItem
+import java.time.DayOfWeek
 import java.time.LocalDateTime
 
 class TaskService {
@@ -89,5 +90,54 @@ class TaskService {
                     Percentage = task.percentage
                 )
             }
+    }
+
+    fun calculateStatisticsByDateType(
+        tasks: List<Task>,
+        dateType: StatisticDateType
+    ): List<DayStatistic> {
+        // Группируем задачи по дню недели
+        val dayCounts = tasks.groupingBy { task ->
+            when (dateType) {
+                StatisticDateType.REGISTRATION -> getDayOfWeekFromDateTime(task.registrationDateTime)
+                StatisticDateType.START -> getDayOfWeekFromDateTime(task.startDateTime)
+                StatisticDateType.END -> task.endDateTime?.let { getDayOfWeekFromDateTime(it) } ?: "Не заполнено"
+            }
+        }.eachCount()
+
+        // Преобразуем в список DayStatistic и сортируем
+        return dayCounts.map { (day, count) ->
+            DayStatistic(day, count)
+        }.sortedWith(compareBy<DayStatistic> { statistic ->
+            // Сортировка: дни недели по порядку, "Не заполнено" в конце
+            getDayOrder(statistic.day)
+        }.thenBy { it.day })
+    }
+
+    private fun getDayOfWeekFromDateTime(dateTime: LocalDateTime): String {
+        val dayOfWeek = dateTime.dayOfWeek
+        return when (dayOfWeek) {
+            DayOfWeek.MONDAY -> "Понедельник"
+            DayOfWeek.TUESDAY -> "Вторник"
+            DayOfWeek.WEDNESDAY -> "Среда"
+            DayOfWeek.THURSDAY -> "Четверг"
+            DayOfWeek.FRIDAY -> "Пятница"
+            DayOfWeek.SATURDAY -> "Суббота"
+            DayOfWeek.SUNDAY -> "Воскресенье"
+        }
+    }
+
+    private fun getDayOrder(day: String): Int {
+        return when (day) {
+            "Понедельник" -> 1
+            "Вторник" -> 2
+            "Среда" -> 3
+            "Четверг" -> 4
+            "Пятница" -> 5
+            "Суббота" -> 6
+            "Воскресенье" -> 7
+            "Не заполнено" -> 8  // Всегда в конце
+            else -> 9
+        }
     }
 }
