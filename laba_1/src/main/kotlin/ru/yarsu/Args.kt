@@ -1,57 +1,66 @@
 package ru.yarsu
-import com.beust.jcommander.*
+import com.beust.jcommander.Parameter
+import com.beust.jcommander.Parameters
 
 @Parameters(separators = "=")
 open class Args {
-    @Parameter(names = ["--tasks-file"],
+    @Parameter(
+        names = ["--tasks-file"],
         required = true,
-        description = "Обязательный аргумент, принимает путь к csv файлу с данными")
+        description = "Обязательный аргумент, принимает путь к csv файлу с данными",
+    )
     var urlFile: String = ""
 }
 
 @Parameters(separators = "=", commandDescription = "Выводит информацию о задаче по её UUID")
-class ShowTask : Args(){
-    @Parameter(names = ["--task-id"],
+class ShowTask : Args() {
+    @Parameter(
+        names = ["--task-id"],
         arity = 1,
-        description = "Полная информация о задаче в формате JSON"
+        description = "Полная информация о задаче в формате JSON",
     )
     var taskID: String? = null
 }
 
-class TaskList : Args() {}
+class TaskList : Args()
 
 @Parameters(separators = "=", commandDescription = "Получить список задач для блока Матрицы Эйзенхауэра")
 class ListEisenHower : Args() {
-    @Parameter(names = ["--important"],
+    @Parameter(
+        names = ["--important"],
         arity = 1,
-        description = "true – задачи с приоритетом «высокий», «очень высокий», «критический» false – задачи с приоритетом «очень низкий», «низкий», «обычный»"
+        description =
+            "true – задачи с приоритетом «высокий», «очень высокий», «критический»" +
+                "false – задачи с приоритетом «очень низкий», «низкий», «обычный»",
     )
     var important: Boolean? = null
 
-    @Parameter(names = ["--urgent"],
+    @Parameter(
+        names = ["--urgent"],
         arity = 1,
-        description = "Необязательный параметр срочности."
-        )
+        description = "Необязательный параметр срочности.",
+    )
     var urgent: Boolean? = null
 }
 
 @Parameters(separators = "=", commandDescription = "Получить список задач, актуальных на момент времени")
 class ListTime : Args() {
-    @Parameter(names = ["--time"],
+    @Parameter(
+        names = ["--time"],
         arity = 1,
         description = "Обязательный параметр даты и времени в формате ISO",
-        required = true
+        required = true,
     )
     var time: String? = null
 }
 
 @Parameters(separators = "=", commandDescription = "Получить статистическую информацию о списке задач по дням недели")
 class Statistic : Args() {
-    @Parameter(names = ["--by-date"],
+    @Parameter(
+        names = ["--by-date"],
         arity = 1,
         description = "Обязательный параметр типа отображаемой статистики",
-        required = true
+        required = true,
     )
     var valueStatistic: String? = null
 }
-
