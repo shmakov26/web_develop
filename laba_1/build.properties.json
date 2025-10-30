@@ -1,8 +1,0 @@
-{
-  "mainClass": "ru.yarsu.MainKt",
-  "dependencies": [
-    "com.fasterxml.jackson.module:jackson-module-kotlin:2.20.0",
-    "com.jsoizo:kotlin-csv:1.10.0",
-    "org.jcommander:jcommander:2.0"
-  ]
-}

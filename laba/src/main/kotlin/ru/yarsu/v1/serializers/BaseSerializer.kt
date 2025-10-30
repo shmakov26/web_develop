@@ -18,7 +18,7 @@ open class BaseSerializer {
         with(outputGenerator) {
             writeStartObject()
 
-            writeFieldName("error")
+            writeFieldName("Error")
 
             writeString(textError)
 

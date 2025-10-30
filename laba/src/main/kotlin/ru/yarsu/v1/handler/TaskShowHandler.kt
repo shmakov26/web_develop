@@ -37,13 +37,13 @@ class TaskShowHandler(
         } catch (e: NullPointerException) {
             return Response(Status.NOT_FOUND)
                 .contentType(ContentType.APPLICATION_JSON)
-                .body(taskShowSerializer.serializeNotFoundTask(taskId, e.message.toString()))
+                .body(taskShowSerializer.serializeNotFoundTask(taskId, "Задача не найдена"))
         } catch (e: IllegalArgumentException) {
             return Response(Status.BAD_REQUEST)
                 .contentType(ContentType.APPLICATION_JSON)
                 .body(
                     taskShowSerializer.serializeError(
-                        "Некорректный идентификатор задачи. Для параметра task-id ожидается UUID, но получено значение «$taskId»",
+                        "Некорректное значение переданного параметра. Ожидается UUID, но получено текстовое значение «$taskId»",
                     ),
                 )
         }

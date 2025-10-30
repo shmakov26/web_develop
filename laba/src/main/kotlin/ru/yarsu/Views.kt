@@ -5,66 +5,58 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 data class Category(
-    @JsonProperty("Id")
+    @field:JsonProperty("Id")
     val id: UUID,
-    @JsonProperty("Description")
+    @field:JsonProperty("Description")
     val description: String,
-    @JsonProperty("Color")
+    @field:JsonProperty("Color")
     val color: Color,
 )
 
 data class TaskModel(
-    @JsonProperty("Id")
+    @field:JsonProperty("Id")
     val id: UUID,
-    @JsonProperty("Title")
+    @field:JsonProperty("Title")
     val title: String,
-    @JsonProperty("RegistrationDateTime")
+    @field:JsonProperty("RegistrationDateTime")
     val registrationDateTime: LocalDateTime,
-    @JsonProperty("StartDateTime")
+    @field:JsonProperty("StartDateTime")
     val startDateTime: LocalDateTime,
-    @JsonProperty("EndDateTime")
+    @field:JsonProperty("EndDateTime")
     val endDateTime: LocalDateTime?,
-    @JsonProperty("Importance")
+    @field:JsonProperty("Importance")
     var importance: Importance,
-    @JsonProperty("Urgency")
+    @field:JsonProperty("Urgency")
     val urgency: Boolean,
-    @JsonProperty("Percentage")
+    @field:JsonProperty("Percentage")
     val percentage: Int,
-    @JsonProperty("Description")
+    @field:JsonProperty("Description")
     val description: String,
-    @JsonProperty("IsClosed")
+    @field:JsonProperty("IsClosed")
     val isClosed: Boolean,
-    @JsonProperty("Category")
+    @field:JsonProperty("Category")
     val category: UUID,
 )
 
 // view's for list command
 data class TasksForListCommand(
-    @JsonProperty("Id")
+    @field:JsonProperty("Id")
     val id: UUID,
-    @JsonProperty("Title")
+    @field:JsonProperty("Title")
     val title: String,
-    @JsonProperty("IsClosed")
+    @field:JsonProperty("IsClosed")
     val isClosed: Boolean,
 )
 
 data class TaskForListImportance(
-    @JsonProperty("Id")
+    @field:JsonProperty("Id")
     val id: UUID,
-    @JsonProperty("Title")
+    @field:JsonProperty("Title")
     val title: String,
-    @JsonProperty("Importance")
+    @field:JsonProperty("Importance")
     val importance: String,
-    @JsonProperty("Urgency")
+    @field:JsonProperty("Urgency")
     val urgency: Boolean,
-    @JsonProperty("Percentage")
+    @field:JsonProperty("Percentage")
     val percentage: Int,
-)
-
-// view's for list-time
-data class TaskForListTime(
-    @JsonProperty("time")
-    val time: String,
-    @JsonProperty("tasks")
-    val tasks: List<TaskForListImportance>,
 )

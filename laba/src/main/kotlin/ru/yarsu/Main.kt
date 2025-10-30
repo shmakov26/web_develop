@@ -28,8 +28,6 @@ fun main(argv: Array<String>) {
 
         val pathToCategoriesFile = args.userFile ?: throw ParameterException("Error: missing option --categories-file")
 
-        // TODO handle uncorrect arg : --tasks-file --users-file --port
-
         val app = applicationRoutes(readTaskFileCsv(pathToTasksFile), readCategoryFileCsv(pathToCategoriesFile))
 
         val server = app.asServer(Netty(args.numberPort ?: throw ParameterException("Error: missing option --port"))).start()
@@ -81,10 +79,3 @@ fun readCategoryFileCsv(pathToTasksFile: String): List<Category> {
     }
     return dataOfCategory
 }
-//    val mapper = jacksonObjectMapper()
-//    val printer = DefaultPrettyPrinter()
-//    printer.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE)
-//    mapper.enable(SerializationFeature.INDENT_OUTPUT)
-//        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-//        .writer(printer)
-//        .writeValue(System.out, dataForView)

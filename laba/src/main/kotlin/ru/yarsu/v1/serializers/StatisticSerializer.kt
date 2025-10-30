@@ -18,14 +18,15 @@ class StatisticSerializer : BaseSerializer() {
         val printer = DefaultPrettyPrinter()
         printer.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE)
         outputGenerator.prettyPrinter = printer
+
         with(outputGenerator) {
             writeStartObject()
 
             writeFieldName(
                 when (typeStatistic) {
-                    ValuesStatistic.REGISTRATION -> "statisticByRegistrationDateTime"
-                    ValuesStatistic.START -> "statisticByStartDateTime"
-                    ValuesStatistic.END -> "statisticByEndDateTime"
+                    ValuesStatistic.REGISTRATION -> "StatisticsByRegistrationDateTime"
+                    ValuesStatistic.START -> "StatisticsByStartDateTime"
+                    ValuesStatistic.END -> "StatisticsByEndDateTime"
                 },
             )
 

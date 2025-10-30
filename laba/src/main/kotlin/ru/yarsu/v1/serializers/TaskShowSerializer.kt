@@ -82,10 +82,10 @@ class TaskShowSerializer : BaseSerializer() {
         with(outputGenerator) {
             writeStartObject()
 
-            writeFieldName("task-id")
+            writeFieldName("TaskId")
             writeString(taskId)
 
-            writeFieldName("error")
+            writeFieldName("Error")
             writeString(errorMessage)
 
             writeEndObject()

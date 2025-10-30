@@ -4,23 +4,23 @@ enum class Importance(
     var importance: String,
     val order: Int,
 ) {
-    VERY_LOW("очень низкий", 0),
-    LOW("низкий", 1),
-    DEFAULT("обычный", 2),
-    HIGH("высокий", 3),
-    VERY_HIGH("очень высокий", 4),
-    CRITICAL("критический", 5),
+    VERY_LOW("Очень низкий", 0),
+    LOW("Низкий", 1),
+    DEFAULT("Обычный", 2),
+    HIGH("Высокий", 3),
+    VERY_HIGH("Очень высокий", 4),
+    CRITICAL("Критический", 5),
 }
 
 fun parseImportance(importanceString: String): Importance =
-    when (importanceString.lowercase()) {
-        "очень низкий" -> Importance.VERY_LOW
-        "низкий" -> Importance.LOW
-        "обычный" -> Importance.DEFAULT
-        "высокий" -> Importance.HIGH
-        "очень высокий" -> Importance.VERY_HIGH
-        "критический" -> Importance.CRITICAL
+    when (importanceString) {
+        "Очень низкий" -> Importance.VERY_LOW
+        "Низкий" -> Importance.LOW
+        "Обычный" -> Importance.DEFAULT
+        "Высокий" -> Importance.HIGH
+        "Очень высокий" -> Importance.VERY_HIGH
+        "Критический" -> Importance.CRITICAL
         else -> throw IllegalArgumentException(
-            "Неизвестный Importance. Может быть только очень низкий, низкий, обычный, высокий, очень высокий, критический",
+            "Неизвестный Importance. Может быть только Очень низкий, Низкий, Обычный, Высокий, Очень высокий, Критический",
         )
     }
