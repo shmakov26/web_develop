@@ -21,8 +21,6 @@ fun main(argv: Array<String>) {
             .addObject(args)
             .build()
     try {
-        val data: List<List<String>>
-
         commander.parse(*argv)
 
         val pathToTasksFile = args.urlFile ?: throw ParameterException("Error: missing option --tasks-file")

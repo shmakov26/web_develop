@@ -1,7 +1,7 @@
 package ru.yarsu
 
 enum class Color(
-    val strDFormat: String,
+    val strFormat: String,
     val rgb: String,
 ) {
     BLACK("Чёрный", "#000000"),
