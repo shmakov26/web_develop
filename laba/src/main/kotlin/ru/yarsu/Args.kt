@@ -16,7 +16,7 @@ open class Args {
         required = true,
         description = "Обязательный аргумент, принимает путь к csv файлу с данными приложения",
     )
-    var userFile: String? = null
+    var categoriesFile: String? = null
 
     @Parameter(
         names = ["--port"],
@@ -24,4 +24,11 @@ open class Args {
         description = "Порт, по которому доступен веб-сервер",
     )
     var numberPort: Int? = null
+
+    @Parameter(
+        names = ["--users-file"],
+        required = true,
+        description = "Имя файла с пользователями приложения",
+    )
+    var userFile: String? = null
 }

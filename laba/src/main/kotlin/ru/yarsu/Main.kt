@@ -3,9 +3,10 @@ package ru.yarsu
 import com.beust.jcommander.JCommander
 import com.beust.jcommander.ParameterException
 import com.github.doyaaaaaken.kotlincsv.client.CsvReader
+import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import org.http4k.server.Netty
 import org.http4k.server.asServer
-import ru.yarsu.v1.applicationRoutes
+import ru.yarsu.v2.applicationRoutes
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -25,19 +26,34 @@ fun main(argv: Array<String>) {
         commander.parse(*argv)
 
         val pathToTasksFile = args.urlFile ?: throw ParameterException("Error: missing option --tasks-file")
+        val pathToCategoriesFile = args.categoriesFile ?: throw ParameterException("Error: missing option --categories-file")
+        val pathToUsersFile = args.userFile ?: throw ParameterException("Error: missing option --users-file")
 
-        val pathToCategoriesFile = args.userFile ?: throw ParameterException("Error: missing option --categories-file")
+        val tasksFile = readTaskFileCsv(pathToTasksFile)
+        val categoriesFile = readCategoryFileCsv(pathToCategoriesFile)
+        val usersFile = readUserFileCsv(pathToUsersFile)
 
-        val app = applicationRoutes(readTaskFileCsv(pathToTasksFile), readCategoryFileCsv(pathToCategoriesFile))
+        val app = applicationRoutes(tasksFile, categoriesFile, usersFile)
 
-        val server = app.asServer(Netty(args.numberPort ?: throw ParameterException("Error: missing option --port"))).start()
+        Runtime.getRuntime().addShutdownHook(
+            object : Thread() {
+                override fun run() {
+                    super.run()
+                    writeTasksToCsv(tasksFile, pathToTasksFile)
+                    writeCategoriesToCsv(categoriesFile, pathToCategoriesFile)
+                    writeUsersToCsv(usersFile, pathToUsersFile)
+                }
+            },
+        )
+
+        app.asServer(Netty(args.numberPort ?: throw ParameterException("Error: missing option --port"))).start()
     } catch (e: Exception) {
         System.err.println("$e")
         exitProcess(1)
     }
 }
 
-fun readTaskFileCsv(pathToTasksFile: String): List<TaskModel> {
+fun readTaskFileCsv(pathToTasksFile: String): MutableList<TaskModel> {
     val csvReader = CsvReader()
     val data = csvReader.readAll(File(pathToTasksFile))
 
@@ -45,24 +61,62 @@ fun readTaskFileCsv(pathToTasksFile: String): List<TaskModel> {
     for (item in data.drop(1)) {
         dataTask.add(
             TaskModel(
-                UUID.fromString(item[0]),
+                id = UUID.fromString(item[0]),
                 title = item[1],
                 registrationDateTime = LocalDateTime.parse(item[2], DateTimeFormatter.ISO_DATE_TIME),
                 startDateTime = LocalDateTime.parse(item[3]),
                 endDateTime = if (item[4] == "") null else LocalDateTime.parse(item[4]),
-                importance = parseImportance(item[5]),
+                importance = item[5],
                 urgency = item[6].toBoolean(),
                 percentage = item[7].toInt(),
                 description = item[8],
-                isClosed = item[7].toInt() == 100,
-                category = UUID.fromString(item[9]),
+                author = UUID.fromString(item[9]),
+                category = UUID.fromString(item[10]),
             ),
         )
     }
     return dataTask
 }
 
-fun readCategoryFileCsv(pathToTasksFile: String): List<Category> {
+fun writeTasksToCsv(
+    tasks: List<TaskModel>,
+    filePath: String,
+) {
+    csvWriter().open(filePath) {
+        writeRow(
+            "Id",
+            "Title",
+            "RegistrationDateTime",
+            "StartDateTime",
+            "EndDateTime",
+            "Importance",
+            "Urgency",
+            "Percentage",
+            "Description",
+            "IsClose",
+            "Author",
+            "Category",
+        )
+
+        tasks.forEach { task ->
+            writeRow(
+                task.id.toString(),
+                task.title,
+                task.registrationDateTime.toString(),
+                task.startDateTime.toString(),
+                task.endDateTime?.toString(),
+                task.importance,
+                task.urgency,
+                task.percentage,
+                task.description,
+                task.author.toString(),
+                task.category.toString(),
+            )
+        }
+    }
+}
+
+fun readCategoryFileCsv(pathToTasksFile: String): MutableList<Category> {
     val csvReader = CsvReader()
     val data = csvReader.readAll(File(pathToTasksFile))
 
@@ -74,8 +128,64 @@ fun readCategoryFileCsv(pathToTasksFile: String): List<Category> {
                 id = UUID.fromString(item[0]),
                 description = item[1],
                 color = Color.valueOf(item[2]),
+                owner = UUID.fromString(item[3]),
             ),
         )
     }
     return dataOfCategory
+}
+
+fun writeCategoriesToCsv(
+    categories: List<Category>,
+    filePath: String,
+) {
+    csvWriter().open(filePath) {
+        writeRow("Id", "Description", "Color", "Owner")
+
+        categories.forEach { category ->
+            writeRow(
+                category.id.toString(),
+                category.description,
+                category.color,
+                category.owner?.toString(),
+            )
+        }
+    }
+}
+
+fun readUserFileCsv(pathToUserFile: String): MutableList<User> {
+    val csvReader = CsvReader()
+    val data = csvReader.readAll(File(pathToUserFile))
+
+    val dataOfUsers = mutableListOf<User>()
+
+    for (item in data.drop(1)) {
+        dataOfUsers.add(
+            User(
+                UUID.fromString(item[0]),
+                item[1],
+                LocalDateTime.parse(item[2], DateTimeFormatter.ISO_DATE_TIME).toString(),
+                item[3],
+            ),
+        )
+    }
+    return dataOfUsers
+}
+
+fun writeUsersToCsv(
+    users: List<User>,
+    filePath: String,
+) {
+    csvWriter().open(filePath) {
+        writeRow("Id", "Login", "RegistrationDateTime", "Email")
+
+        users.forEach { user ->
+            writeRow(
+                user.id.toString(),
+                user.login,
+                user.registrationDateTime,
+                user.email,
+            )
+        }
+    }
 }

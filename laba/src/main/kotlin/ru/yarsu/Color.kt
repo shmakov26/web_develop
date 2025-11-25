@@ -20,3 +20,25 @@ enum class Color(
     PURPLE("Фиолетовый", "#800080"),
     TEAL("Бирюзовый", "#008080"),
 }
+
+fun parsRgbToColor(rgb: String): Color =
+    when (rgb) {
+        "#000000" -> Color.BLACK
+        "#FFFFFF" -> Color.WHITE
+        "#FF0000" -> Color.RED
+        "#00FF00" -> Color.GREEN
+        "#0000FF" -> Color.BLUE
+        "#FFFF00" -> Color.YELLOW
+        "#00FFFF" -> Color.CYAN
+        "#FF00FF" -> Color.MAGENTA
+        "#C0C0C0" -> Color.SILVER
+        "#808080" -> Color.GRAY
+        "#800000" -> Color.MAROON
+        "#808000" -> Color.OLIVE
+        "#008000" -> Color.DARKGREEN
+        "#800080" -> Color.PURPLE
+        "#008080" -> Color.TEAL
+        else -> throw IllegalArgumentException(
+            "Поле Color передано некорректно, ожидается цвет или RGB из списка.",
+        )
+    }

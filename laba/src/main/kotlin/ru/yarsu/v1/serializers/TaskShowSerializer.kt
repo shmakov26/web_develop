@@ -42,7 +42,7 @@ class TaskShowSerializer : BaseSerializer() {
             }
 
             writeFieldName("Importance")
-            writeString(taskById.importance.importance)
+            writeString(taskById.importance)
 
             writeFieldName("Urgency")
             writeBoolean(taskById.urgency)
@@ -54,7 +54,7 @@ class TaskShowSerializer : BaseSerializer() {
             writeString(taskById.description)
 
             writeFieldName("IsClosed")
-            writeBoolean(taskById.isClosed)
+            writeBoolean(taskById.percentage == 100)
 
             writeFieldName("Category")
             writeString(taskById.category.toString())
