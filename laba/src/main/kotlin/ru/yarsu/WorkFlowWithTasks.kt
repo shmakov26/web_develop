@@ -85,7 +85,7 @@ class WorkFlowWithTasks(
                 .filter { task ->
                     (task.startDateTime < inputDateTime) && (task.percentage < 100)
                 }.sortedWith(
-                    compareByDescending<TaskModel> { it.importance }
+                    compareBy<TaskModel> { it.importance }
                         .thenByDescending { it.urgency }
                         .thenBy { it.registrationDateTime }
                         .thenBy { it.id },

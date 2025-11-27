@@ -54,6 +54,9 @@ class TaskShowSerializer : BaseSerializer() {
             writeFieldName("Description")
             writeString(taskById.description)
 
+            writeFieldName("IsClosed")
+            writeBoolean(taskById.percentage == 100)
+
             writeFieldName("Author")
             writeString(taskById.author.toString())
 

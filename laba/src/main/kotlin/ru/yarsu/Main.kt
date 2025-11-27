@@ -68,6 +68,7 @@ fun readTaskFileCsv(pathToTasksFile: String): MutableList<TaskModel> {
                 urgency = item[6].toBoolean(),
                 percentage = item[7].toInt(),
                 description = item[8],
+                isClosed = item[7].toInt() == 100,
                 author = UUID.fromString(item[9]),
                 category = UUID.fromString(item[10]),
             ),
@@ -91,7 +92,6 @@ fun writeTasksToCsv(
             "Urgency",
             "Percentage",
             "Description",
-            "IsClose",
             "Author",
             "Category",
         )

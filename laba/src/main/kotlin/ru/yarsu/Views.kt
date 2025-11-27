@@ -58,6 +58,8 @@ data class TaskModel(
     val percentage: Int,
     @field:JsonProperty("Description")
     val description: String,
+    @field:JsonProperty("IsClosed")
+    val isClosed: Boolean,
     @field:JsonProperty("Author")
     var author: UUID,
     @field:JsonProperty("Category")

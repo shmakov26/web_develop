@@ -59,6 +59,10 @@ class PutCategory(
         val colorStr = request.form("Color")
 
         val errors = validateBodyCategory(description, colorStr)
+        if (errors.isNotEmpty()) {
+            return jsonResponse.invoke(errors, Status.BAD_REQUEST)
+        }
+
         var color: Color? = null
         if (colorStr != null) {
             color =
@@ -67,10 +71,6 @@ class PutCategory(
                 } else {
                     Color.valueOf(colorStr)
                 }
-        }
-
-        if (errors.isNotEmpty()) {
-            return jsonResponse.invoke(errors, Status.BAD_REQUEST)
         }
 
         val workFlowWithCategory = WorkFlowWithCategory(categoryList)
@@ -82,9 +82,9 @@ class PutCategory(
         try {
             val category = workFlowWithCategory.getCategoryByUUID(uuidCategory)
 
-            val index = categoryList.indexOfFirst { it.id == category?.id }
+            val index = categoryList.indexOfFirst { it.id == category.id }
 
-            val newCategory = putCategory(category!!, description!!, color ?: category.color) // сформировали новый элемент категории
+            val newCategory = putCategory(category, description!!, color ?: category.color) // сформировали новый элемент категории
 
             categoryList[index] = newCategory
 
@@ -107,7 +107,6 @@ class DeleteCategory(
 
         val jsonResponse = jsonResponseLens<Any>()
 
-        val workFlowWithTasks = WorkFlowWithTasks(taskList)
         val workFlowWithCategory = WorkFlowWithCategory(categoryList)
 
         try {
@@ -116,11 +115,7 @@ class DeleteCategory(
             val category = workFlowWithCategory.getCategoryByUUID(uuidCategory)
 
             categoryList.removeIf { it.id == category.id }
-            for (i in taskList.indices) {
-                if (taskList[i].category == uuidCategory) {
-                    taskList.removeAt(i)
-                }
-            }
+            taskList.removeIf { it.category == uuidCategory }
 
             return Response(Status.NO_CONTENT)
         } catch (e: NullPointerException) {

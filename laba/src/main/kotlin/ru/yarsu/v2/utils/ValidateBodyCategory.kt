@@ -19,24 +19,21 @@ fun validateBodyCategory(
     if (color != null) {
         for (c in Color.entries) {
             if (color.contains("#")) {
-                if (color != c.rgb) {
-                    errors["Color"] =
-                        mutableMapOf(
-                            "Value" to description,
-                            "Error" to "Поле Color передано некорректно, ожидается цвет или RGB из списка.",
-                        )
+                if (color == c.rgb) {
+                    return errors
                 }
             } else {
                 if (color == c.toString()) {
-                    errors["Color"] =
-                        mutableMapOf(
-                            "Value" to description,
-                            "Error" to "Поле Color передано некорректно, ожидается цвет или RGB из списка.",
-                        )
+                    return errors
                 }
             }
         }
     }
+    errors["Color"] =
+        mutableMapOf(
+            "Value" to color,
+            "Error" to "Поле Color передано некорректно, ожидается цвет или RGB из списка.",
+        )
 
     return errors
 }

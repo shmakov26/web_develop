@@ -135,6 +135,7 @@ fun createTask(
         urgency = body["Urgency"] as? Boolean ?: false,
         percentage = (body["Percentage"] as? Number)?.toInt() ?: 0,
         description = body["Description"] as? String ?: "",
+        isClosed = ((body["Percentage"] as? Number)?.toInt() ?: 0) == 100,
         author = author,
         category = category,
     )
@@ -166,6 +167,7 @@ fun putTask(
         urgency = body["Urgency"] as? Boolean ?: prevTask.urgency,
         percentage = (body["Percentage"] as? Number)?.toInt() ?: prevTask.percentage,
         description = body["Description"] as? String ?: prevTask.description,
+        isClosed = ((body["Percentage"] as? Number)?.toInt() ?: 0) == 100,
         author = UUID.fromString(body["Author"].toString()) ?: prevTask.author,
         category = category,
     )
