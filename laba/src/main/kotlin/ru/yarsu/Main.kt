@@ -4,9 +4,11 @@ import com.beust.jcommander.JCommander
 import com.beust.jcommander.ParameterException
 import com.github.doyaaaaaken.kotlincsv.client.CsvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
+import org.http4k.core.then
 import org.http4k.server.Netty
 import org.http4k.server.asServer
-import ru.yarsu.v2.applicationRoutes
+import ru.yarsu.jwt.*
+import ru.yarsu.v3.applicationRoutes
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -26,12 +28,25 @@ fun main(argv: Array<String>) {
         val pathToTasksFile = args.urlFile ?: throw ParameterException("Error: missing option --tasks-file")
         val pathToCategoriesFile = args.categoriesFile ?: throw ParameterException("Error: missing option --categories-file")
         val pathToUsersFile = args.userFile ?: throw ParameterException("Error: missing option --users-file")
+        val secretKey = args.secretKey ?: throw ParameterException("Error: missing option --secret")
 
         val tasksFile = readTaskFileCsv(pathToTasksFile)
         val categoriesFile = readCategoryFileCsv(pathToCategoriesFile)
         val usersFile = readUserFileCsv(pathToUsersFile)
 
+        val jwtTools = JwtTools(secretKey)
+        val userAssignRoleOperation = UserAssignRoleOperation()
+//        usersFile.forEach { println("JWT for " + it.login + ": Bearer " + jwtTools.createJWTToken(it)) }
+
+        val userLookup: (String) -> User? = { login ->
+            usersFile.find { it.login == login }
+        }
+
         val app = applicationRoutes(tasksFile, categoriesFile, usersFile)
+
+        val securedApp = authenticationFilter(jwtTools, userLookup)
+            .then(assignPermissionsFilter(userAssignRoleOperation))
+            .then(app)
 
         Runtime.getRuntime().addShutdownHook(
             object : Thread() {
@@ -44,7 +59,7 @@ fun main(argv: Array<String>) {
             },
         )
 
-        app.asServer(Netty(args.numberPort ?: throw ParameterException("Error: missing option --port"))).start()
+        securedApp.asServer(Netty(args.numberPort ?: throw ParameterException("Error: missing option --port"))).start()
     } catch (e: Exception) {
         System.err.println("$e")
         exitProcess(1)
@@ -164,6 +179,7 @@ fun readUserFileCsv(pathToUserFile: String): MutableList<User> {
                 item[1],
                 LocalDateTime.parse(item[2], DateTimeFormatter.ISO_DATE_TIME).toString(),
                 item[3],
+                parsStrToRole(item[4]),
             ),
         )
     }
@@ -175,7 +191,7 @@ fun writeUsersToCsv(
     filePath: String,
 ) {
     csvWriter().open(filePath) {
-        writeRow("Id", "Login", "RegistrationDateTime", "Email")
+        writeRow("Id", "Login", "RegistrationDateTime", "Email", "Role")
 
         users.forEach { user ->
             writeRow(
@@ -183,6 +199,7 @@ fun writeUsersToCsv(
                 user.login,
                 user.registrationDateTime,
                 user.email,
+                user.role.altName,
             )
         }
     }

@@ -31,4 +31,11 @@ open class Args {
         description = "Имя файла с пользователями приложения",
     )
     var userFile: String? = null
+
+    @Parameter(
+        names = ["--secret"],
+        required = true,
+        description = "Секретный ключ для JWT токенов",
+    )
+    var secretKey: String? = null
 }

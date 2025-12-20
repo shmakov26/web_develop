@@ -10,6 +10,7 @@
     "org.http4k:http4k-format-core:5.37.1.0",
     "org.http4k:http4k-bom:5.38.0.0",
     "org.http4k:http4k-format-jackson:5.38.0.0",
-    "org.http4k:http4k-realtime-core:5.38.0.0"
+    "org.http4k:http4k-realtime-core:5.38.0.0",
+    "com.auth0:java-jwt:4.5.0"
   ]
 }

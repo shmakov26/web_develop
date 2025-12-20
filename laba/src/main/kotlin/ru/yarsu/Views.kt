@@ -13,6 +13,8 @@ data class User(
     val registrationDateTime: String,
     @field:JsonProperty("Email")
     val email: String,
+    @field:JsonProperty("Role")
+    val role: Role,
 )
 
 data class Category(
