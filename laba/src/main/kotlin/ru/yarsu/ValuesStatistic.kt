@@ -9,7 +9,7 @@ enum class ValuesStatistic(
 }
 
 fun parseValuesStatistic(type: String): ValuesStatistic =
-    when (type.lowercase()) {
+    when (type) {
         "registration" -> ValuesStatistic.REGISTRATION
         "start" -> ValuesStatistic.START
         "end" -> ValuesStatistic.END

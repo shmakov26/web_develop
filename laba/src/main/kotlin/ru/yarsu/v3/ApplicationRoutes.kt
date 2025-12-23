@@ -10,15 +10,15 @@ import ru.yarsu.TaskModel
 import ru.yarsu.User
 import ru.yarsu.jwt.Permissions
 import ru.yarsu.requirePermission
-import ru.yarsu.v3.handler.EisenhowerListHandler
-import ru.yarsu.v3.handler.ListTimeHandler
-import ru.yarsu.v3.handler.StatisticHandler
 import ru.yarsu.v3.handler.AddNewTaskHandler
 import ru.yarsu.v3.handler.CategoryHandler
 import ru.yarsu.v3.handler.DeleteCategory
 import ru.yarsu.v3.handler.DeleteUser
+import ru.yarsu.v3.handler.EisenhowerListHandler
+import ru.yarsu.v3.handler.ListTimeHandler
 import ru.yarsu.v3.handler.PingHandler
 import ru.yarsu.v3.handler.PutCategory
+import ru.yarsu.v3.handler.StatisticHandler
 import ru.yarsu.v3.handler.TaskListHandler
 import ru.yarsu.v3.handler.TaskShowHandler
 import ru.yarsu.v3.handler.TaskShowPutHandler
@@ -35,17 +35,27 @@ fun applicationRoutes(
             "/v3" bind
                 routes(
                     "/tasks" bind Method.GET to TaskListHandler(taskList),
-                    "/tasks" bind Method.POST to requirePermission(Permissions::createNewTask).then(AddNewTaskHandler(taskList, userList, categoriesList)),
-                    "/tasks/eisenhower" bind Method.GET to requirePermission(Permissions::workWithTasksAndCategoryGet).then(EisenhowerListHandler(taskList)),
-                    "/tasks/by-time" bind Method.GET to requirePermission(Permissions::workWithTasksAndCategoryGet).then(ListTimeHandler(taskList)),
-                    "/tasks/statistics" bind Method.GET to requirePermission(Permissions::workWithTasksAndCategoryGet).then(StatisticHandler(taskList)),
-                    "/tasks/{task-id}" bind Method.GET to requirePermission(Permissions::getInformationTask).then(TaskShowHandler(taskList, userList, categoriesList)),
-                    "/tasks/{task-id}" bind Method.PUT to requirePermission(Permissions::editTask).then(TaskShowPutHandler(taskList, userList, categoriesList)),
-                    "/categories" bind Method.GET to requirePermission(Permissions::workWithTasksAndCategoryGet).then(CategoryHandler(categoriesList, userList)),
-                    "/categories/{category-id}" bind Method.PUT to requirePermission(Permissions::editAndDeleteCategory).then(PutCategory(categoriesList)),
-                    "/categories/{category-id}" bind Method.DELETE to requirePermission(Permissions::editAndDeleteCategory).then(DeleteCategory(taskList, categoriesList)),
+                    "/tasks" bind Method.POST to
+                        requirePermission(Permissions::createNewTask).then(AddNewTaskHandler(taskList, userList, categoriesList)),
+                    "/tasks/eisenhower" bind Method.GET to
+                        requirePermission(Permissions::workWithTasksAndCategoryGet).then(EisenhowerListHandler(taskList)),
+                    "/tasks/by-time" bind Method.GET to
+                        requirePermission(Permissions::workWithTasksAndCategoryGet).then(ListTimeHandler(taskList)),
+                    "/tasks/statistics" bind Method.GET to
+                        requirePermission(Permissions::workWithTasksAndCategoryGet).then(StatisticHandler(taskList)),
+                    "/tasks/{task-id}" bind Method.GET to
+                        requirePermission(Permissions::getInformationTask).then(TaskShowHandler(taskList, userList, categoriesList)),
+                    "/tasks/{task-id}" bind Method.PUT to
+                        requirePermission(Permissions::editTask).then(TaskShowPutHandler(taskList, userList, categoriesList)),
+                    "/categories" bind Method.GET to
+                        requirePermission(Permissions::workWithTasksAndCategoryGet).then(CategoryHandler(categoriesList, userList)),
+                    "/categories/{category-id}" bind Method.PUT to
+                        requirePermission(Permissions::editAndDeleteCategory).then(PutCategory(categoriesList)),
+                    "/categories/{category-id}" bind Method.DELETE to
+                        requirePermission(Permissions::editAndDeleteCategory).then(DeleteCategory(taskList, categoriesList)),
                     "/users" bind Method.GET to requirePermission(Permissions::getAllUsers).then(UsersHandler(userList)),
-                    "/users/{user-id}" bind Method.DELETE to requirePermission(Permissions::deleteUser).then(DeleteUser(taskList, categoriesList, userList)),
+                    "/users/{user-id}" bind Method.DELETE to
+                        requirePermission(Permissions::deleteUser).then(DeleteUser(taskList, categoriesList, userList)),
                 ),
         )
     return app
@@ -54,7 +64,7 @@ fun applicationRoutes(
 /*
 curl -X POST http://localhost:9000/v2/tasks \
 -H "Content-Type: application/json" \
--H ""Authorization: Bearer " \
+-H "Authorization: Bearer " \
 -d '{
         "Title": "Лабоработная № 3",
         "RegistrationDateTime": "2024-01-01T00:00:00",

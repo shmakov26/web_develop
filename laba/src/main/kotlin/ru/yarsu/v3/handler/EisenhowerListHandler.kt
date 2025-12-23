@@ -13,17 +13,14 @@ import ru.yarsu.WorkFlowWithTasks
 import ru.yarsu.jwt.Permissions
 import ru.yarsu.pagination
 import ru.yarsu.permissionsLens
+import ru.yarsu.userContextLens
 import ru.yarsu.v3.serializers.EisenHowerListSerializer
 
 class EisenhowerListHandler(
     private val tasklist: List<TaskModel>,
 ) : HttpHandler {
     override fun invoke(request: Request): Response {
-        // get query parameters
-        val permissions = permissionsLens(request)
-        if (!(permissions == Permissions.CATEGORY_MANAGER || permissions == Permissions.USER)) {
-            return Response(Status.UNAUTHORIZED)
-        }
+        val user = userContextLens(request).user ?: return Response(Status.UNAUTHORIZED)
 
         val important: String? = request.uri.queries().findSingle("important")
         val urgent: String? = request.uri.queries().findSingle("urgent")
@@ -31,7 +28,7 @@ class EisenhowerListHandler(
         val recordsPerPage: String = request.uri.queries().findSingle("records-per-page") ?: "10"
 
         // helpful objects
-        val workFlowWithTasks = WorkFlowWithTasks(tasklist)
+        val workFlowWithTasks = WorkFlowWithTasks(tasklist.filter { it.author == user.id })
         val eisenHowerListSerializer = EisenHowerListSerializer()
 
         try {

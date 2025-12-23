@@ -17,7 +17,7 @@ class CategoryListSerializer : BaseSerializer() {
         mapper
             .enable(SerializationFeature.INDENT_OUTPUT)
             .setDefaultPropertyInclusion(
-                JsonInclude.Value.construct(JsonInclude.Include.NON_NULL, JsonInclude.Include.ALWAYS),
+                JsonInclude.Value.construct(JsonInclude.Include.ALWAYS, JsonInclude.Include.ALWAYS),
             ).writer(printer)
             .writeValue(stringWriter, taskList)
 

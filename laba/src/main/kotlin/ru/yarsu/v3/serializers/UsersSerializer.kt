@@ -5,11 +5,11 @@ import com.fasterxml.jackson.core.util.DefaultIndenter
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import ru.yarsu.User
+import ru.yarsu.ShowUser
 import java.io.StringWriter
 
 class UsersSerializer : BaseSerializer() {
-    fun usersList(taskList: List<User>): String {
+    fun usersList(taskList: List<ShowUser>): String {
         val stringWriter = StringWriter()
         val mapper = jacksonObjectMapper()
         val printer = DefaultPrettyPrinter()

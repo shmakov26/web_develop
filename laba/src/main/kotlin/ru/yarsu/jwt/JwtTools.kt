@@ -20,7 +20,7 @@ class JwtTools(
     fun createJWTToken(user: User): String =
         JWT
             .create()
-            .withSubject(user.login)
+            .withSubject(user.id.toString())
             .withExpiresAt(Instant.now().plusSeconds(60 * 120 * 1L))
             .sign(algorithm)
 

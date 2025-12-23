@@ -19,6 +19,7 @@ import ru.yarsu.WorkFlowWithTasks
 import ru.yarsu.jwt.Permissions
 import ru.yarsu.pagination
 import ru.yarsu.permissionsLens
+import ru.yarsu.userContextLens
 import ru.yarsu.v3.jsonResponseLens
 import ru.yarsu.v3.serializers.TaskListSerializer
 import ru.yarsu.v3.utils.createTask
@@ -71,11 +72,7 @@ class AddNewTaskHandler(
     override fun invoke(request: Request): Response {
         val jsonResponse = jsonResponseLens<Map<String, Any>>()
         try {
-            val permissions = permissionsLens(request)
-            if (!(permissions == Permissions.CATEGORY_MANAGER || permissions == Permissions.USER)) {
-                return Response(Status.UNAUTHORIZED)
-            }
-
+            val user = userContextLens(request).user ?: return Response(Status.UNAUTHORIZED)
             val body = jsonBodyLens(request)
 
             val listError = validateBody(body, userList, categoryList)
@@ -84,7 +81,7 @@ class AddNewTaskHandler(
                 return jsonResponse.invoke(listError, Status.BAD_REQUEST)
             }
 
-            val author = UUID.fromString(body["Author"].toString())
+            val author = user.id
             val category = UUID.fromString(body["Category"].toString())
 
             var ownerCategory: UUID? = null
@@ -99,7 +96,7 @@ class AddNewTaskHandler(
                     createTask(
                         body,
                         body["Title"].toString(),
-                        UUID.fromString(body["Author"].toString()),
+                        user.id,
                         UUID.fromString(body["Category"].toString()),
                     )
 
@@ -111,7 +108,7 @@ class AddNewTaskHandler(
                         createTask(
                             body,
                             body["Title"].toString(),
-                            UUID.fromString(body["Author"].toString()),
+                            user.id,
                             UUID.fromString(body["Category"].toString()),
                         )
 

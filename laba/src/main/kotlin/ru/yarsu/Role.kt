@@ -15,6 +15,6 @@ fun parsStrToRole(str: String): Role =
         "CategoryManager" -> Role.CATEGORYMANAGER
         "UserManager" -> Role.USERMANAGER
         else -> throw IllegalArgumentException(
-            "Поле Role передано некорректно, ожидается роль из списка."
+            "Поле Role передано некорректно, ожидается роль из списка.",
         )
     }

@@ -10,9 +10,8 @@ import org.http4k.core.queries
 import org.http4k.lens.contentType
 import ru.yarsu.TaskModel
 import ru.yarsu.WorkFlowWithTasks
-import ru.yarsu.jwt.Permissions
 import ru.yarsu.pagination
-import ru.yarsu.permissionsLens
+import ru.yarsu.userContextLens
 import ru.yarsu.v3.serializers.ListTimeSerializer
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -22,17 +21,14 @@ class ListTimeHandler(
     private val tasklist: List<TaskModel>,
 ) : HttpHandler {
     override fun invoke(request: Request): Response {
-        val permissions = permissionsLens(request)
-        if (!(permissions == Permissions.CATEGORY_MANAGER || permissions == Permissions.USER)) {
-            return Response(Status.UNAUTHORIZED)
-        }
+        val user = userContextLens(request).user ?: return Response(Status.UNAUTHORIZED)
 
         val time: String? = request.uri.queries().findSingle("time")
         val page: String = request.uri.queries().findSingle("page") ?: "1"
         val recordsPerPage: String = request.uri.queries().findSingle("records-per-page") ?: "10"
 
         // helpful objects
-        val workFlowWithTasks = WorkFlowWithTasks(tasklist)
+        val workFlowWithTasks = WorkFlowWithTasks(tasklist.filter { it.author == user.id })
         val listTimeSerializer = ListTimeSerializer()
 
         try {
@@ -51,7 +47,6 @@ class ListTimeHandler(
             val listTime =
                 pagination(
                     workFlowWithTasks.getListTime(
-                        tasklist,
                         LocalDateTime.parse(
                             time
                                 ?: throw IllegalArgumentException(

@@ -13,21 +13,18 @@ import ru.yarsu.WorkFlowWithTasks
 import ru.yarsu.jwt.Permissions
 import ru.yarsu.parseValuesStatistic
 import ru.yarsu.permissionsLens
+import ru.yarsu.userContextLens
 import ru.yarsu.v3.serializers.StatisticSerializer
 
 class StatisticHandler(
     private var tasklist: List<TaskModel>,
 ) : HttpHandler {
     override fun invoke(request: Request): Response {
-        val permissions = permissionsLens(request)
-        if (!(permissions == Permissions.CATEGORY_MANAGER || permissions == Permissions.USER)) {
-            return Response(Status.UNAUTHORIZED)
-        }
+        val user = userContextLens(request).user ?: return Response(Status.UNAUTHORIZED)
 
         val byDate: String? = request.uri.queries().findSingle("by-date")
 
-        // helpful objects
-        val workFlowWithTasks = WorkFlowWithTasks(tasklist)
+        val workFlowWithTasks = WorkFlowWithTasks(tasklist.filter { it.author == user.id })
         val statisticSerializer = StatisticSerializer()
 
         try {

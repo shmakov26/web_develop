@@ -8,10 +8,11 @@ import org.http4k.core.Status
 import org.http4k.core.with
 import org.http4k.lens.RequestKey
 import org.http4k.lens.bearerToken
-import ru.yarsu.User
-import ru.yarsu.jwt.*
+import ru.yarsu.jwt.JwtTools
+import ru.yarsu.jwt.Permissions
+import ru.yarsu.jwt.UserAssignRoleOperation
+import ru.yarsu.jwt.UserContext
 import ru.yarsu.v3.jsonResponseLens
-import java.util.*
 
 val userContextLens = RequestKey.required<UserContext>("user-context")
 
@@ -19,7 +20,7 @@ val permissionsLens = RequestKey.required<Permissions>("permissions")
 
 fun authenticationFilter(
     jwtTools: JwtTools,
-    userLookup: (login: String) -> User?
+    userLookup: (login: String) -> User?,
 ): Filter =
     Filter { next: HttpHandler ->
         { request: Request ->
@@ -50,27 +51,25 @@ fun authenticationFilter(
         }
     }
 
-fun assignPermissionsFilter(userAssignRoleOperation: UserAssignRoleOperation): Filter {
-    return Filter { next: HttpHandler ->
+fun assignPermissionsFilter(userAssignRoleOperation: UserAssignRoleOperation): Filter =
+    Filter { next: HttpHandler ->
         { request: Request ->
             val userContext = userContextLens(request)
             val permissions = userAssignRoleOperation.getUserRole(userContext.user)
             next(request.with(permissionsLens of permissions))
         }
     }
-}
 
-fun requirePermission(check: (Permissions) -> Boolean): Filter {
-    return Filter { next: HttpHandler ->
+fun requirePermission(check: (Permissions) -> Boolean): Filter =
+    Filter { next: HttpHandler ->
         { request: Request ->
             val permissions = permissionsLens(request)
 
             if (check(permissions)) {
                 next(request)
             } else {
-                val jsonResponse = jsonResponseLens<Map<String, String>>()
+//                val jsonResponse = jsonResponseLens<Map<String, String>>()
                 Response(Status.UNAUTHORIZED)
             }
         }
     }
-}

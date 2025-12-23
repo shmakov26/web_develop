@@ -7,7 +7,8 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import org.http4k.core.then
 import org.http4k.server.Netty
 import org.http4k.server.asServer
-import ru.yarsu.jwt.*
+import ru.yarsu.jwt.JwtTools
+import ru.yarsu.jwt.UserAssignRoleOperation
 import ru.yarsu.v3.applicationRoutes
 import java.io.File
 import java.time.LocalDateTime
@@ -36,17 +37,20 @@ fun main(argv: Array<String>) {
 
         val jwtTools = JwtTools(secretKey)
         val userAssignRoleOperation = UserAssignRoleOperation()
-//        usersFile.forEach { println("JWT for " + it.login + ": Bearer " + jwtTools.createJWTToken(it)) }
+        usersFile.forEach { println("JWT for " + it.login + ": Bearer " + jwtTools.createJWTToken(it)) }
 
-        val userLookup: (String) -> User? = { login ->
-            usersFile.find { it.login == login }
+        val userLookup: (String) -> User? = { subject ->
+            runCatching { UUID.fromString(subject) }
+                .getOrNull()
+                ?.let { id -> usersFile.find { it.id == id } }
         }
 
         val app = applicationRoutes(tasksFile, categoriesFile, usersFile)
 
-        val securedApp = authenticationFilter(jwtTools, userLookup)
-            .then(assignPermissionsFilter(userAssignRoleOperation))
-            .then(app)
+        val securedApp =
+            authenticationFilter(jwtTools, userLookup)
+                .then(assignPermissionsFilter(userAssignRoleOperation))
+                .then(app)
 
         Runtime.getRuntime().addShutdownHook(
             object : Thread() {
@@ -141,7 +145,7 @@ fun readCategoryFileCsv(pathToTasksFile: String): MutableList<Category> {
                 id = UUID.fromString(item[0]),
                 description = item[1],
                 color = Color.valueOf(item[2]),
-                owner = UUID.fromString(item[3]),
+                owner = if (item[3] == "") null else UUID.fromString(item[3]),
             ),
         )
     }

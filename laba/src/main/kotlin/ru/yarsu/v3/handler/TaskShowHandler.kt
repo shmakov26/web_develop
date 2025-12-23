@@ -28,8 +28,6 @@ class TaskShowHandler(
     private val categoryList: List<Category>,
 ) : HttpHandler {
     override fun invoke(request: Request): Response {
-        userContextLens(request).user ?: return Response(Status.UNAUTHORIZED)
-
         val taskId: String = request.path("task-id") ?: return Response(Status.BAD_REQUEST)
 
         val workFlowWithTasks = WorkFlowWithTasks(tasklist)

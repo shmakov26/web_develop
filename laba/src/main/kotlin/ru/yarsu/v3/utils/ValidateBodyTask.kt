@@ -78,19 +78,19 @@ fun validateBody(
         }
     }
 //
-    val author = data["Author"]?.toString()
-    if (author.isNullOrBlank()) {
-        errors["Author"] = mapOf<String, Any?>("Value" to data["Author"], "Error" to "Параметр обязательный и не может быть пустым")
-    } else {
-        if (!isValidUUID(author)) {
-            errors["Author"] = mutableMapOf("Value" to data["Author"], "Error" to "Ожидается корректное значение UUID")
-        } else {
-            val user = userList.firstOrNull({ UUID.fromString(author) == it.id })
-            if (user == null) {
-                errors["Author"] = mutableMapOf("Value" to data["Author"], "Error" to "Ожидается корректное значение UUID")
-            }
-        }
-    }
+//    val author = data["Author"]?.toString()
+//    if (author.isNullOrBlank()) {
+//        errors["Author"] = mapOf<String, Any?>("Value" to data["Author"], "Error" to "Параметр обязательный и не может быть пустым")
+//    } else {
+//        if (!isValidUUID(author)) {
+//            errors["Author"] = mutableMapOf("Value" to data["Author"], "Error" to "Ожидается корректное значение UUID")
+//        } else {
+//            val user = userList.firstOrNull({ UUID.fromString(author) == it.id })
+//            if (user == null) {
+//                errors["Author"] = mutableMapOf("Value" to data["Author"], "Error" to "Ожидается корректное значение UUID")
+//            }
+//        }
+//    }
 
     val category = data["Category"]
     if (category != null) {
@@ -162,7 +162,12 @@ fun putTask(
             } catch (e: Exception) {
                 prevTask.startDateTime
             },
-        endDateTime = body["EndDateTime"]?.let { LocalDateTime.parse(it.toString()) },
+        endDateTime =
+            try {
+                LocalDateTime.parse(body["EndDateTime"].toString())
+            } catch (e: Exception) {
+                prevTask.endDateTime
+            },
         importance = body["Importance"] as? String ?: prevTask.importance,
         urgency = body["Urgency"] as? Boolean ?: prevTask.urgency,
         percentage = (body["Percentage"] as? Number)?.toInt() ?: prevTask.percentage,

@@ -76,10 +76,7 @@ class WorkFlowWithTasks(
         return taskForListImportance
     }
 
-    fun getListTime(
-        tasksData: List<TaskModel>,
-        inputDateTime: LocalDateTime?,
-    ): List<TaskForListImportance> {
+    fun getListTime(inputDateTime: LocalDateTime?): List<TaskForListImportance> {
         val listSorted =
             tasksData
                 .filter { task ->

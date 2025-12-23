@@ -30,11 +30,6 @@ class CategoryHandler(
     private val userList: List<User>,
 ) : HttpHandler {
     override fun invoke(request: Request): Response {
-        val permissions = permissionsLens(request)
-        if (!(permissions == Permissions.CATEGORY_MANAGER || permissions == Permissions.USER)) {
-            return Response(Status.UNAUTHORIZED)
-        }
-
         val categorySerializer = CategoryListSerializer()
         val category = mutableListOf<CategoryList>()
         val sortedList = WorkFlowWithCategory(categoryList).getSortedCategoryList()
@@ -91,13 +86,13 @@ class PutCategory(
             )
         try {
             val category = workFlowWithCategory.getCategoryByUUID(uuidCategory)
-            if ((user.id != category.owner) || (permissions != Permissions.CATEGORY_MANAGER)) {
+            if ((user.id != category.owner) && (permissions != Permissions.CATEGORY_MANAGER)) {
                 return Response(Status.UNAUTHORIZED)
             }
 
             val index = categoryList.indexOfFirst { it.id == category.id }
 
-            val newCategory = putCategory(category, description!!, color ?: category.color) // сформировали новый элемент категории
+            val newCategory = putCategory(category, description!!, color ?: category.color)
 
             categoryList[index] = newCategory
 
@@ -129,7 +124,7 @@ class DeleteCategory(
             val uuidCategory = UUID.fromString(categoryId)
 
             val category = workFlowWithCategory.getCategoryByUUID(uuidCategory)
-            if ((user.id != category.owner) || (permissions != Permissions.CATEGORY_MANAGER)) {
+            if ((user.id != category.owner) && (permissions != Permissions.CATEGORY_MANAGER)) {
                 return Response(Status.UNAUTHORIZED)
             }
 

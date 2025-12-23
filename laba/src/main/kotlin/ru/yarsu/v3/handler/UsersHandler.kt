@@ -8,6 +8,7 @@ import org.http4k.core.Status
 import org.http4k.lens.contentType
 import org.http4k.routing.path
 import ru.yarsu.Category
+import ru.yarsu.ShowUser
 import ru.yarsu.TaskModel
 import ru.yarsu.User
 import ru.yarsu.WorkFlowWithUsers
@@ -22,23 +23,17 @@ class UsersHandler(
     var userList: MutableList<User>,
 ) : HttpHandler {
     override fun invoke(request: Request): Response {
-        val permissions = permissionsLens(request)
-        if (permissions != Permissions.USER_MANAGER) {
-            return Response(Status.UNAUTHORIZED)
-        }
-
         val usersSerializer = UsersSerializer()
-        val totalUser = mutableListOf<User>()
+        val totalUser = mutableListOf<ShowUser>()
 
         val sortedListUser = userList.sortedWith(compareBy<User> { it.login })
         for (users in sortedListUser) {
             totalUser.add(
-                User(
+                ShowUser(
                     id = users.id,
                     login = users.login,
                     registrationDateTime = users.registrationDateTime,
                     email = users.email,
-                    role = users.role,
                 ),
             )
         }
@@ -65,34 +60,69 @@ class DeleteUser(
         try {
             val uuidUser = UUID.fromString(userId)
             val user1 = workFlowWithUsers.getUserByUUID(uuidUser)
-            if ((user.id != user1.id) || (permissions != Permissions.USER_MANAGER)) {
+            if ((user.id != user1.id) && (permissions != Permissions.USER_MANAGER)) {
                 return Response(Status.UNAUTHORIZED)
             }
 
-            val tasks = taskList
-                .filter { it.author == uuidUser }
-                .sortedWith(compareBy { it.id })
+            val tasks =
+                taskList
+                    .filter { it.author == uuidUser }
+                    .sortedWith(compareBy { it.id })
 
-            val categories = categoryList
-                .filter { it.owner == uuidUser }
-                .sortedWith(compareBy { it.id })
+            val categories =
+                categoryList
+                    .filter { it.owner == uuidUser }
+                    .sortedWith(compareBy { it.id })
 
-            if ((tasks.isNotEmpty()) || (categories.isNotEmpty())) {
-                return jsonResponse.invoke(mutableMapOf(
-                    "Tasks" to tasks.map {
-                        mapOf(
-                            "Id" to it.id,
-                            "Title" to it.title
-                        )
-                    },
-                    "Categories" to categories.map {
-                        mapOf(
-                            "Id" to it.id,
-                            "Description" to it.description
-                        )
-                    }
-                ), Status.FORBIDDEN)
-            } else {
+            if ((tasks.isNotEmpty()) && (categories.isNotEmpty())) {
+                return jsonResponse.invoke(
+                    mutableMapOf(
+                        "Tasks" to
+                            tasks.map {
+                                mapOf(
+                                    "Id" to it.id,
+                                    "Title" to it.title,
+                                )
+                            },
+                        "Categories" to
+                            categories.map {
+                                mapOf(
+                                    "Id" to it.id,
+                                    "Description" to it.description,
+                                )
+                            },
+                    ),
+                    Status.FORBIDDEN,
+                )
+            }
+//            else if ((tasks.isEmpty()) && (categories.isNotEmpty())) {
+//                return jsonResponse.invoke(
+//                    mutableMapOf(
+//                        "Categories" to
+//                            categories.map {
+//                                mapOf(
+//                                    "Id" to it.id,
+//                                    "Description" to it.description,
+//                                )
+//                            },
+//                    ),
+//                    Status.FORBIDDEN,
+//                )
+//            } else if (tasks.isNotEmpty()) {
+//                return jsonResponse.invoke(
+//                    mutableMapOf(
+//                        "Tasks" to
+//                            tasks.map {
+//                                mapOf(
+//                                    "Id" to it.id,
+//                                    "Title" to it.title,
+//                                )
+//                            },
+//                    ),
+//                    Status.FORBIDDEN,
+//                )
+//            }
+            else {
                 userList.removeIf { it.id == uuidUser }
             }
 
